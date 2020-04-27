@@ -48,13 +48,21 @@ function show_cheatsheet() {
         echo "Cheatsheet '${cheatsheet_name}' does not exist" 1>&2
         return 2
     fi
-    result=$(cat -n "${cheatsheet}" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*\(#.*\)/\t\1/' -e '/^[[:digit:]]\+[[:space:]]*\(#.*\)\?$/d' | fzf --no-multi --no-sort --delimiter='\t' --with-nth=2.. --preview="\"$0\" --get_help \"${cheatsheet}\" {1}" --query="$query")
-    if [ -n "${result}" ]; then
+    result=($(cat -n "${cheatsheet}" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*\(#.*\)/\t\1/' -e '/^[[:digit:]]\+[[:space:]]*\(#.*\)\?$/d' | fzf --no-multi --no-sort --delimiter='\t' --with-nth=2.. --preview="\"$0\" --get_help \"${cheatsheet}\" {1}" --query="$query" --expect=ctrl-x))
+    if [ "${#result[@]}" -gt 0 ]; then
+        local key="${result[0]}"
+        local line="${result[1]}"
         local num
-        num=$(echo "${result}" | cut -f1)
-        local cmd
-        cmd=$(with_help "${cheatsheet}" "${num}" | vipe | strip_comments)
-        echo "$cmd"
+        num=$(echo "${line}" | cut -f1)
+        if [ "${key}" == "ctrl-x" ]; then
+            # We want to execute the output, so ignore the shellcheck warning
+            # shellcheck disable=SC2091
+            $(with_help "${cheatsheet}" "${num}" | strip_comments)
+        else
+            local cmd
+            cmd=$(with_help "${cheatsheet}" "${num}" | vipe | strip_comments)
+            echo "$cmd"
+        fi
     else
         return 1
     fi
