@@ -5,9 +5,9 @@ fzf-cheatsheets-widget() {
     query=$(echo "${READLINE_LINE}" | awk '{for (i=2; i<NF; i++) print $i " "; print $NF}')
     local selected
     if [ -z "${cmd}" ]; then
-      selected="$(fzf-cheatsheets)"
+      selected="$(fzf-cheatsheets --widget)"
     else
-      selected="$(fzf-cheatsheets "${cmd}" -- "${query}")"
+      selected="$(fzf-cheatsheets --widget "${cmd}" -- "${query}")"
     fi
     local ret=$?
     if [ $ret -eq 0 ]; then

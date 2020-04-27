@@ -4,6 +4,9 @@ set -euo pipefail
 
 CHEATSHEETS_DIR="${CHEATSHEETS_DIR-~/.local/share/cheatsheets}"
 
+# Whether we are in widget mode, controls whether commands are directly executed
+WIDGET=0
+
 function list_cheatsheets() {
     local query="$1"
     local cheatsheets
@@ -22,7 +25,7 @@ function list_cheatsheets() {
 }
 
 function strip_comments() {
-    sed -e 's/#.*//' -e '/^[[:space:]]*$/d'
+    sed -e 's/[[:space:]]*#.*//' -e '/^[[:space:]]*$/d'
 }
 
 function with_help() {
@@ -48,21 +51,32 @@ function show_cheatsheet() {
         echo "Cheatsheet '${cheatsheet_name}' does not exist" 1>&2
         return 2
     fi
-    result=($(cat -n "${cheatsheet}" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*\(#.*\)/\t\1/' -e '/^[[:digit:]]\+[[:space:]]*\(#.*\)\?$/d' | fzf --no-multi --no-sort --delimiter='\t' --with-nth=2.. --preview="\"$0\" --get_help \"${cheatsheet}\" {1}" --query="$query" --expect=ctrl-x))
-    if [ "${#result[@]}" -gt 0 ]; then
-        local key="${result[0]}"
-        local line="${result[1]}"
+    result=$(cat -n "${cheatsheet}" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*\(#.*\)/\t\1/' -e '/^[[:digit:]]\+[[:space:]]*\(#.*\)\?$/d' | fzf --no-multi --no-sort --delimiter='\t' --preview="\"$0\" --get_help \"${cheatsheet}\" {1}" --query="$query" --expect=ctrl-x)
+    local lines
+    IFS=$'\n' lines=(${result})
+    if [ "${#lines[@]}" -gt 1 ]; then
+        local key="${lines[0]}"
+        local line="${lines[1]}"
         local num
         num=$(echo "${line}" | cut -f1)
         if [ "${key}" == "ctrl-x" ]; then
-            # We want to execute the output, so ignore the shellcheck warning
-            # shellcheck disable=SC2091
-            $(with_help "${cheatsheet}" "${num}" | strip_comments)
+            cmd=$(with_help "${cheatsheet}" "${num}" | strip_comments)
+            if [ "${WIDGET}" -eq 1 ]; then
+                echo "$cmd"
+            else
+                # We want to execute the output, so ignore the shellcheck warning
+                # shellcheck disable=SC2091
+                $SHELL -c "$cmd"
+            fi
         else
-            local cmd
-            cmd=$(with_help "${cheatsheet}" "${num}" | vipe | strip_comments)
-            echo "$cmd"
+            echo "Unknown binding: ${key}" 1>&2
         fi
+    elif [ "${#lines[@]}" -eq 1 ]; then
+        local num
+        num=$(echo "${lines[0]}" | cut -f1)
+        local cmd
+        cmd=$(with_help "${cheatsheet}" "${num}" | vipe | strip_comments)
+        echo "$cmd"
     else
         return 1
     fi
@@ -73,6 +87,10 @@ NUM=""
 
 while (( "$#" )); do
   case "$1" in
+    --widget)
+      WIDGET=1
+      shift
+      ;;
     --get_help)
       CHEATSHEET=$2
       NUM=$3

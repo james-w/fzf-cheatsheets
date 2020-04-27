@@ -8,9 +8,9 @@ fzf-cheatsheets-widget() {
     query=$(echo "${LBUFFER}" | awk '{for (i=2; i<NF; i++) print $i " "; print $NF}')
     local selected
     if [ -z "${cmd}" ]; then
-      selected="$(command fzf-cheatsheets)"
+      selected="$(command fzf-cheatsheets --widget)"
     else
-      selected="$(command fzf-cheatsheets "${cmd}" -- "${query}")"
+      selected="$(command fzf-cheatsheets --widget "${cmd}" -- "${query}")"
     fi
     local ret=$?
     if [ $ret -eq 0 ]; then
