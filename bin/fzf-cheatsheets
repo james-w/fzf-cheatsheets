@@ -1,0 +1,96 @@
+#!/bin/bash
+
+set -euo pipefail
+
+CHEATSHEETS_DIR="${CHEATSHEETS_DIR-~/.local/share/cheatsheets}"
+
+function join_by { local IFS="$1"; shift; echo "$*"; }
+
+function list_cheatsheets() {
+    local query="$1"
+    local cheatsheets
+    cheatsheets=$(find "${CHEATSHEETS_DIR}" -type f)
+    local lines=()
+    for cheatsheet in ${cheatsheets}; do
+        lines+=("$(basename "${cheatsheet}")	$(head -n1 "${cheatsheet}" | sed -e 's/^#[[:space:]]//')")
+    done
+    local result
+    result=$(join_by '\n' "${lines[@]}" | fzf --no-multi --delimiter='\t' --preview="cat \"$CHEATSHEETS_DIR\"/{1}")
+    if [ -n "${result}" ]; then
+        show_cheatsheet "$(echo "${result}" | awk '{ print $1 }')" "$query"
+    else
+        return 1
+    fi
+}
+
+function strip_comments() {
+    sed -e 's/#.*//' -e '/^[[:space:]]*$/d'
+}
+
+function with_help() {
+    local cheatsheet=$1
+    local num=$2
+    awk -v "n=$num" '
+        NR<n {}
+        NR==n { print }
+        NR>n {
+            if ($0 !~ /^([[:space:]]|#|$)/) {
+                exit
+            }
+            print
+        }
+    ' < "${cheatsheet}"
+}
+
+function show_cheatsheet() {
+    local cheatsheet_name="$1"
+    local query="$2"
+    local cheatsheet="${CHEATSHEETS_DIR}/${cheatsheet_name}"
+    if [ ! -f "${cheatsheet}" ]; then
+        echo "Cheatsheet '${cheatsheet_name}' does not exist" 1>&2
+        return 2
+    fi
+    result=$(cat -n "${cheatsheet}" | sed -e 's/^     //' -e 's/[[:space:]]*\(#.*\)/\t\1/' -e '/^[[:digit:]]\+[[:space:]]*\(#.*\)\?$/d' | fzf --no-multi --no-sort --delimiter='\t' --with-nth=2.. --preview="\"$0\" --get_help \"${cheatsheet}\" {1}" --query="$query")
+    if [ -n "${result}" ]; then
+        local num
+        num=$(echo "${result}" | cut -f1)
+        local cmd
+        cmd=$(with_help "${cheatsheet}" "${num}" | vipe | strip_comments)
+        echo "$cmd"
+    else
+        return 1
+    fi
+}
+
+CHEATSHEET=""
+NUM=""
+
+while (( "$#" )); do
+  case "$1" in
+    --get_help)
+      CHEATSHEET=$2
+      NUM=$3
+      shift 3
+      ;;
+    --) # end argument parsing
+      shift
+      break
+      ;;
+    -*|--*=) # unsupported flags
+      echo "Error: Unsupported flag $1" >&2
+      exit 1
+      ;;
+    *) # preserve positional arguments
+      CHEATSHEET="$1"
+      shift
+      ;;
+  esac
+done
+
+if [ -n "$NUM" ]; then
+    with_help "$CHEATSHEET" "$NUM"
+elif [ -z "$CHEATSHEET" ]; then
+    list_cheatsheets "$*"
+else
+    show_cheatsheet "$CHEATSHEET" "$*"
+fi

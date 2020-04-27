@@ -1,0 +1,8 @@
+# Git, the version control system
+git status # Show status of repo
+
+# This shows the status of the repo containing the current working directory
+
+git something # Some other command
+
+# This is another command
