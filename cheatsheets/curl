@@ -25,7 +25,6 @@ curl -H 'user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.3
 
 curl -d '{json}' -H 'Content-Type: application/json' http://url/endpoint # -d, --data <data>     HTTP POST data
 
-curl -K file            #
 curl --config file      # Read config from a file
 $EDITOR $HOME/.curlrc           # Default config file in UNIX-like systems
 
