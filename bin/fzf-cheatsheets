@@ -57,7 +57,7 @@ function show_cheatsheet() {
         echo "Cheatsheet '${cheatsheet_name}' does not exist" 1>&2
         return 2
     fi
-    result=$(cat -n "${cheatsheet}" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*\(#.*\)//' -e '/^[[:digit:]]\+[[:space:]]*\(#.*\)\?$/d' | fzf --no-multi --no-sort --delimiter='\t' --preview="\"$0\" --get_help \"${cheatsheet}\" {1}" --query="$query" --expect=ctrl-x --tiebreak=begin,length,index --with-nth=2)
+    result=$(cat -n "${cheatsheet}" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*\(#.*\)//' -e '/^[[:digit:]]\+[[:space:]]*\(#.*\)\?$/d' | fzf --no-multi --no-sort --delimiter='\t' --preview="\"$0\" --get_help \"${cheatsheet}\" {1}" --query="$query" --expect=ctrl-e --tiebreak=begin,length,index --with-nth=2)
     local lines
     IFS=$'\n' lines=(${result})
     if [ "${#lines[@]}" -gt 1 ]; then
@@ -65,26 +65,26 @@ function show_cheatsheet() {
         local line="${lines[1]}"
         local num
         num=$(echo "${line}" | cut -f1)
-        if [ "${key}" == "ctrl-x" ]; then
-            cmd=$(with_help "${cheatsheet}" "${num}" | strip_comments)
-            if [ "${WIDGET}" -eq 1 ]; then
-                echo "$cmd"
-            else
-                # We want to execute the output, so ignore the shellcheck warning
-                # shellcheck disable=SC2091
-                $SHELL -c "$cmd"
-            fi
+        if [ "${key}" == "ctrl-e" ]; then
+            local cmd
+            cmd=$(with_help "${cheatsheet}" "${num}" | vipe | strip_comments)
         else
             echo "Unknown binding: ${key}" 1>&2
+            return 1
         fi
     elif [ "${#lines[@]}" -eq 1 ]; then
         local num
         num=$(echo "${lines[0]}" | cut -f1)
-        local cmd
-        cmd=$(with_help "${cheatsheet}" "${num}" | vipe | strip_comments)
-        echo "$cmd"
+        cmd=$(with_help "${cheatsheet}" "${num}" | strip_comments)
     else
         return 1
+    fi
+    if [ "${WIDGET}" -eq 1 ]; then
+        echo "$cmd"
+    else
+        # We want to execute the output, so ignore the shellcheck warning
+        # shellcheck disable=SC2091
+        $SHELL -c "$cmd"
     fi
 }
 
