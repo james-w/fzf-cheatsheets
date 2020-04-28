@@ -70,3 +70,9 @@ You can also use the command directly if you prefer:
 
 In this case the command will be executed when you have finished, it won't be
 added to your command line.
+
+## Inspiration
+
+Reddit user u/techAndLanguage [suggested the idea](https://www.reddit.com/r/vim/comments/g8haqm/question_about_how_to_use_vim_as_a_stream_editor/)
+
+Some of the cheatsheets started from [awesome-cheatsheets](https://github.com/LeCoupa/awesome-cheatsheets)
