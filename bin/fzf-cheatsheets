@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-CHEATSHEETS_DIR="${CHEATSHEETS_DIR-$(realpath $(dirname ${0})/../cheatsheets/)}"
+CHEATSHEETS_DIR="${CHEATSHEETS_DIR-"$(realpath "$(dirname "${0}")/../cheatsheets/")"}"
 
 # Whether we are in widget mode, controls whether commands are directly executed
 WIDGET=0
