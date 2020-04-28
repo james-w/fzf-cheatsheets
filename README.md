@@ -71,6 +71,32 @@ You can also use the command directly if you prefer:
 In this case the command will be executed when you have finished, it won't be
 added to your command line.
 
+## Adding cheatsheets
+
+You can add your own cheatsheets.
+
+You can set `CHEATSHEETS_DIR` environment variable to point to a set of
+cheatsheet files, or you can send PRs here.
+
+The files should be named after the command that they should be used for.
+
+The cheatsheet files are pretty simple, with a command per line.
+
+    git status
+
+Comments can be added after the command
+
+    git status # Shows the status of the repo
+
+For more complex commands you can add comments on following lines to expand
+further.
+
+    git status # Shows the status of the repo
+    # Here is some more information
+
+Everything up to the next command will be considered comments for that
+command.
+
 ## Inspiration
 
 Reddit user u/techAndLanguage [suggested the idea](https://www.reddit.com/r/vim/comments/g8haqm/question_about_how_to_use_vim_as_a_stream_editor/)
