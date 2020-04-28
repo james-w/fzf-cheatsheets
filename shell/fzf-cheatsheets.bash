@@ -2,7 +2,7 @@ fzf-cheatsheets-widget() {
     local cmd
     cmd=$(echo "${READLINE_LINE}" | awk '{ print $1 }')
     local query
-    query=$(echo "${READLINE_LINE}" | awk '{for (i=2; i<NF; i++) print $i " "; print $NF}')
+    query=$(echo "${READLINE_LINE}" | awk '{for (i=2; i<NF; i++) print $i " "; if (NF > 1) { print $NF }}')
     local selected
     if [ -z "${cmd}" ]; then
       selected="$(fzf-cheatsheets --widget)"

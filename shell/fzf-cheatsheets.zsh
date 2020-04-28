@@ -5,7 +5,7 @@
         local cmd
         cmd=$(echo "${LBUFFER}" | awk '{ print $1 }')
         local query
-        query=$(echo "${LBUFFER}" | awk '{for (i=2; i<NF; i++) print $i " "; print $NF}')
+        query=$(echo "${LBUFFER}" | awk '{for (i=2; i<NF; i++) print $i " "; if (NF > 1) { print $NF }}')
         local selected
         if [ -z "${cmd}" ]; then
             selected="$(fzf-cheatsheets --widget)"
