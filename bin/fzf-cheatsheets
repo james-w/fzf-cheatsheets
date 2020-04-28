@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-CHEATSHEETS_DIR="${CHEATSHEETS_DIR-~/.local/share/cheatsheets}"
+CHEATSHEETS_DIR="${CHEATSHEETS_DIR-$(realpath $(dirname ${0})/../cheatsheets/)}"
 
 # Whether we are in widget mode, controls whether commands are directly executed
 WIDGET=0
@@ -51,7 +51,7 @@ function show_cheatsheet() {
         echo "Cheatsheet '${cheatsheet_name}' does not exist" 1>&2
         return 2
     fi
-    result=$(cat -n "${cheatsheet}" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*\(#.*\)/\t\1/' -e '/^[[:digit:]]\+[[:space:]]*\(#.*\)\?$/d' | fzf --no-multi --no-sort --delimiter='\t' --preview="\"$0\" --get_help \"${cheatsheet}\" {1}" --query="$query" --expect=ctrl-x)
+    result=$(cat -n "${cheatsheet}" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*\(#.*\)/\t\1/' -e '/^[[:digit:]]\+[[:space:]]*\(#.*\)\?$/d' | fzf --no-multi --no-sort --delimiter='\t' --preview="\"$0\" --get_help \"${cheatsheet}\" {1}" --query="$query" --expect=ctrl-x --tiebreak=begin,length,index)
     local lines
     IFS=$'\n' lines=(${result})
     if [ "${#lines[@]}" -gt 1 ]; then

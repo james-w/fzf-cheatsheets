@@ -19,6 +19,6 @@ fzf-cheatsheets-widget() {
     return $ret
 }
 
-bind -m emacs-standard -x '"\ec": fzf-cheatsheets-widget'
-bind -m vi-command -x '"\ec": fzf-cheatsheets-widget'
-bind -m vi-insert -x '"\ec": fzf-cheatsheets-widget'
+bind -m emacs-standard -x '"\C-x\C-p": fzf-cheatsheets-widget'
+bind -m vi-command -x '"\C-x\C-p": fzf-cheatsheets-widget'
+bind -m vi-insert -x '"\C-x\C-p": fzf-cheatsheets-widget'
