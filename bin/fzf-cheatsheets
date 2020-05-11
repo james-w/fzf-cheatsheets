@@ -59,6 +59,8 @@ function show_cheatsheet() {
     fi
     result=$(cat -n "${cheatsheet}" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*\(#.*\)//' -e '/^[[:digit:]]\+[[:space:]]*\(#.*\)\?$/d' | fzf --no-multi --delimiter='\t' --preview="\"$0\" --get_help \"${cheatsheet}\" {1}" --query="$query" --expect=ctrl-e --with-nth=2)
     local lines
+    # We specifically want splitting here, so avoid the shellcheck warning about it
+    # shellcheck disable=SC2206
     IFS=$'\n' lines=(${result})
     if [ "${#lines[@]}" -gt 1 ]; then
         local key="${lines[0]}"
@@ -106,7 +108,7 @@ while (( "$#" )); do
       shift
       break
       ;;
-    -*|--*=) # unsupported flags
+    --*|-*=) # unsupported flags
       echo "Error: Unsupported flag $1" >&2
       exit 1
       ;;
