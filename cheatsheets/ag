@@ -1,0 +1,9 @@
+# ag - the silver searcher, fast grep alternative
+ag PATTERN # Search for PATTERN beneath the current directory
+ag PATTERN PATH # Search for PATTERN within PATH
+ag --ignore DIR PATTERN # Search for PATTERN ignoring any files in DIR
+ag -G REGEX PATTERN # Only look in files matching REGEX
+ag -g PATTERN # Search for a file matching PATTERN
+ag -i PATTERN # case-insensitive search for PATTERN
+ag -u PATTERN # Search in all files
+ag -l PATTERN # Only print the filenames of files that match
