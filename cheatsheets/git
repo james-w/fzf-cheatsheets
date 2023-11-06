@@ -14,6 +14,7 @@ git branch my-branch    # creates my-branch
 git branch -d my-branch # deletes my-branch
 git checkout my-bracnch # switches to my-branch
 git merge my-branch     # merges my-branch to current branch
+git merge --abort       # abort an in-progress merge (e.g. if there are conflicts)
 git push origin :my-branch         # delete remote branch
 
 git cherry-pick <commit_id>        # merge the specified commit
