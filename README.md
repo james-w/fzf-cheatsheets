@@ -27,7 +27,7 @@ Clone the repo somewhere, and then in your `.bashrc` add
 
     FZF_CHEATSHEETS_DIR=<directory where you cloned this repo>
     export PATH="$PATH:${FZF_CHEATSHEETS_DIR}/bin"
-    source "${FZF_CHEATSHEETS_DIR}/shell/fzf-cheatsheets.bash
+    source "${FZF_CHEATSHEETS_DIR}/shell/fzf-cheatsheets.bash"
 
 ## Usage
 
