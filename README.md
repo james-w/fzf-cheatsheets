@@ -97,6 +97,21 @@ further.
 Everything up to the next command will be considered comments for that
 command.
 
+### Awesome Cheatsheets
+
+You can also use the [awesome-cheatsheets](https://github.com/LeCoupa/awesome-cheatsheets)
+repo directly, though the formatting is not consistent there and so the help
+messages will be less useful.
+
+Simply checkout that repo somewhere:
+
+    git clone git@github.com:LeCoupa/awesome-cheatsheets.git path/to/awesome-cheatsheets
+
+and point your `FZF_CHEATSHEETS_DIR` to that directory in your `zshrc` or
+`bashrc`:
+
+    FZF_CHEATSHEETS_DIR=path/to/awesome-cheatsheets
+
 ## Inspiration
 
 Reddit user u/techAndLanguage [suggested the idea](https://www.reddit.com/r/vim/comments/g8haqm/question_about_how_to_use_vim_as_a_stream_editor/)

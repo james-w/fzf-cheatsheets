@@ -2,19 +2,22 @@
 
 set -euo pipefail
 
-CHEATSHEETS_DIR="${CHEATSHEETS_DIR-"$(realpath "$(dirname "${0}")/../cheatsheets/")"}"
+CHEATSHEETS_DIR="${FZF_CHEATSHEETS_DIR-"$(realpath "$(dirname "${0}")/../cheatsheets/")"}"
 
 # Whether we are in widget mode, controls whether commands are directly executed
 WIDGET=0
 
 function list_cheatsheets() {
     local query="$1"
-    local cheatsheets
-    cheatsheets=$(find "${CHEATSHEETS_DIR}" -type f)
     local lines=()
-    for cheatsheet in ${cheatsheets}; do
-        lines+=("$(basename "${cheatsheet}")	$(head -n1 "${cheatsheet}" | sed -e 's/^#[[:space:]]//')")
-    done
+    while IFS= read -r -d '' cheatsheet; do
+        if ! $(file "${cheatsheet}" | grep -q 'text'); then
+            continue
+        fi
+        local subpath="${cheatsheet#$CHEATSHEETS_DIR}"
+        subpath="${subpath#/}"
+        lines+=("${subpath}	$(head -n1 "${cheatsheet}" | sed -e 's/^#[[:space:]]//')")
+    done < <(find "${CHEATSHEETS_DIR}" -not -path '*/.*' -not -name 'LICENSE' -not -name 'README.md' -type f -print0)
     local result
     result=$(printf "%s\n" "${lines[@]}" | fzf --no-multi --delimiter='\t' --preview="cat \"$CHEATSHEETS_DIR\"/{1}")
     if [ -n "${result}" ]; then
@@ -54,8 +57,11 @@ function show_cheatsheet() {
     local query="$2"
     local cheatsheet="${CHEATSHEETS_DIR}/${cheatsheet_name}"
     if [ ! -f "${cheatsheet}" ]; then
-        echo "Cheatsheet '${cheatsheet_name}' does not exist" 1>&2
-        return 2
+        cheatsheet="$(find ${CHEATSHEETS_DIR} -not -path '*/.*' -not -name 'LICENSE' -not -name 'README.md' -type f -name "${cheatsheet_name}*" | head -n1)"
+        if [ ! -f "${cheatsheet}" ]; then
+            echo "Cheatsheet '${cheatsheet_name}' does not exist" 1>&2
+            return 2
+        fi
     fi
     result=$(cat -n "${cheatsheet}" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*\(#.*\)//' -e '/^[[:digit:]]\+[[:space:]]*\(#.*\)\?$/d' | fzf --no-multi --delimiter='\t' --preview="\"$0\" --get_help \"${cheatsheet}\" {1}" --query="$query" --expect=ctrl-e --with-nth=2)
     local lines
